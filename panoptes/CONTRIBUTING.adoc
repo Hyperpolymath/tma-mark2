@@ -2,16 +2,92 @@
 // SPDX-License-Identifier: MIT
 = Contributing to Panoptes
 :toc: left
-:toclevels: 2
+:toclevels: 3
 :icons: font
+:sectnums:
 
-Thank you for your interest in contributing to Panoptes! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to Panoptes! This document provides guidelines and information for contributors at all levels.
 
 == Code of Conduct
 
 All contributors must follow our link:CODE_OF_CONDUCT.adoc[Code of Conduct]. Please read it before participating.
 
-== Ways to Contribute
+== Tri-Perimeter Contribution Framework (TPCF)
+
+Panoptes uses a three-tier contribution model to balance openness with quality and security:
+
+=== Perimeter 1: Core (Maintainers)
+
+**Access Level**: Full repository access, release authority
+
+**Who**: Listed in link:MAINTAINERS.md[MAINTAINERS.md]
+
+**Responsibilities**:
+
+* Merge authority on all branches
+* Release management and signing
+* Security vulnerability handling
+* Architecture decisions
+* Succession planning
+* Community moderation
+
+**Requirements**:
+
+* Sustained high-quality contributions (12+ months)
+* Deep understanding of codebase architecture
+* Demonstrated security awareness
+* Signed Contributor Agreement
+* Two-factor authentication enforced
+* GPG signing required for all commits
+
+**Pathway**: Invitation by existing Core members with BDFL approval
+
+=== Perimeter 2: Expert (Trusted Contributors)
+
+**Access Level**: Merge authority on feature branches, triage rights
+
+**Who**: Contributors who have demonstrated expertise
+
+**Responsibilities**:
+
+* Code review for Perimeter 3 contributions
+* Issue triage and labeling
+* Documentation maintenance
+* Mentoring new contributors
+* Feature branch ownership
+
+**Requirements**:
+
+* Multiple accepted contributions (10+ PRs)
+* Consistent code quality
+* Good communication skills
+* Active for 6+ months
+* Passed review by Core team
+
+**Pathway**: Nomination by Core member, lazy consensus approval
+
+=== Perimeter 3: Community (Open Contribution)
+
+**Access Level**: Fork and PR submission, issue creation
+
+**Who**: Anyone following the Code of Conduct
+
+**Responsibilities**:
+
+* Submit PRs from forks
+* Report bugs and request features
+* Participate in discussions
+* Help other community members
+
+**Requirements**:
+
+* GitHub account
+* Signed DCO (Developer Certificate of Origin)
+* Follow contribution guidelines
+
+**Pathway**: Open to all, immediate access
+
+== Contribution Types
 
 === Reporting Bugs
 
@@ -20,21 +96,27 @@ All contributors must follow our link:CODE_OF_CONDUCT.adoc[Code of Conduct]. Ple
 3. Include:
    - Panoptes version (`panoptes --version`)
    - Operating system and version
+   - Rust version (`rustc --version`)
    - Ollama version
    - Steps to reproduce
    - Expected vs actual behavior
    - Logs (with `--verbose`)
+   - Sample files (if applicable, anonymized)
 
 === Suggesting Features
 
-1. Check existing issues and roadmap
+1. Check existing issues and link:ROADMAP.md[ROADMAP.md]
 2. Use the feature request template
 3. Describe the use case clearly
-4. Consider implementation complexity
+4. Consider:
+   - Security implications
+   - Performance impact
+   - Backward compatibility
+   - Implementation complexity
 
 === Code Contributions
 
-==== Development Setup
+==== Development Environment Setup
 
 [source,bash]
 ----
@@ -42,31 +124,64 @@ All contributors must follow our link:CODE_OF_CONDUCT.adoc[Code of Conduct]. Ple
 git clone https://github.com/panoptes/panoptes.git
 cd panoptes
 
+# Using Nix (recommended)
+nix develop
+
+# Or manual setup:
 # Install Rust (if needed)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
+# Install Just task runner
+cargo install just
+
 # Install development tools
-just setup-dev
+just setup
 
-# Build
-just build-dev
+# Pull Ollama model
+ollama pull moondream
 
-# Run tests
+# Build and test
+just build
 just test
 ----
 
 ==== Coding Standards
 
+**Rust Style**:
+
 * Follow Rust idioms and best practices
 * Run `cargo fmt` before committing
-* Run `cargo clippy` and fix all warnings
+* Run `cargo clippy -- -D warnings` and fix all warnings
 * All code must be `#![forbid(unsafe_code)]`
-* Write documentation for public APIs
-* Include SPDX license headers on all files
+* Maximum line length: 100 characters
+
+**Documentation**:
+
+* All public APIs must have doc comments
+* Include examples in doc comments
+* Update README.adoc for user-facing changes
+* Update wiki for significant features
+
+**Licensing**:
+
+* SPDX headers required on ALL source files:
++
+[source,rust]
+----
+// SPDX-FileCopyrightText: 2024 Panoptes Contributors
+// SPDX-License-Identifier: MIT
+----
+
+**Testing**:
+
+* Write unit tests for new functionality
+* Add integration tests for complex features
+* Maintain or improve code coverage (>80%)
+* Test on Linux; macOS/Windows appreciated
 
 ==== Commit Messages
 
-We follow Conventional Commits:
+We follow https://www.conventionalcommits.org/[Conventional Commits]:
 
 [source]
 ----
@@ -77,86 +192,211 @@ We follow Conventional Commits:
 [optional footer(s)]
 ----
 
-Types:
+**Types**:
+
 * `feat`: New feature
 * `fix`: Bug fix
-* `docs`: Documentation
-* `style`: Formatting
-* `refactor`: Code restructuring
-* `test`: Adding tests
-* `chore`: Maintenance
+* `docs`: Documentation only
+* `style`: Formatting (no code change)
+* `refactor`: Code restructuring (no behavior change)
+* `perf`: Performance improvement
+* `test`: Adding/fixing tests
+* `build`: Build system changes
+* `ci`: CI/CD changes
+* `chore`: Other maintenance
+* `security`: Security fix
 
-Examples:
+**Scopes** (optional): `analyzer`, `cli`, `web`, `db`, `watcher`, `config`
+
+**Examples**:
+
 [source]
 ----
-feat(analyzer): add audio file support
-fix(watcher): handle symlink loops
-docs(wiki): add configuration guide
+feat(analyzer): add HEIC image format support
+
+Adds support for HEIC/HEIF images using the libheif crate.
+Includes automatic conversion to JPEG for Moondream analysis.
+
+Closes #123
+----
+
+[source]
+----
+fix(watcher): handle symlink loops correctly
+
+Previously, symlink loops would cause infinite recursion.
+Now detected and logged with a warning.
+
+Fixes #456
+----
+
+[source]
+----
+security(deps): update rusqlite to fix CVE-2024-XXXX
+
+BREAKING CHANGE: Requires SQLite 3.40+ at runtime
 ----
 
 ==== Pull Request Process
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feat/my-feature`
-3. Make your changes
-4. Run all checks: `just check-all`
-5. Commit with meaningful messages
-6. Push to your fork
-7. Open a Pull Request
+1. **Fork** the repository
+2. **Create branch**: `git checkout -b feat/my-feature` (from `develop`)
+3. **Implement** with tests and documentation
+4. **Run checks**: `just check-all`
+5. **Sign commits**: `git commit -s` (DCO sign-off)
+6. **Push** to your fork
+7. **Open PR** against `develop` branch
+8. **Respond** to review feedback
+9. **Squash** if requested
 
 ==== Pull Request Checklist
 
-* [ ] Code compiles without warnings
-* [ ] All tests pass
+* [ ] Code compiles without warnings (`cargo build`)
+* [ ] All tests pass (`cargo test`)
+* [ ] Clippy clean (`cargo clippy -- -D warnings`)
+* [ ] Formatted (`cargo fmt -- --check`)
+* [ ] SPDX headers on new files
 * [ ] Documentation updated
-* [ ] CHANGELOG.md updated
+* [ ] CHANGELOG.md updated (for features/fixes)
 * [ ] Commit messages follow convention
-* [ ] Branch is up to date with main
+* [ ] DCO sign-off present
+* [ ] Branch up to date with `develop`
 
 === Documentation
 
-* API documentation: Update doc comments
-* User documentation: Update README.adoc or wiki
-* Use AsciiDoc format where possible
-* Include code examples
+* **Code docs**: Update doc comments, run `cargo doc`
+* **User docs**: Update README.adoc or docs/wiki/
+* **Format**: AsciiDoc preferred, Markdown acceptable
+* **Examples**: Include runnable code examples
+* **Screenshots**: For UI changes, include before/after
 
-=== Testing
+=== Security Contributions
 
-* Write unit tests for new functionality
-* Add integration tests for complex features
-* Maintain or improve code coverage
-* Test on multiple platforms if possible
+See link:SECURITY.md[SECURITY.md] for:
+
+* Reporting vulnerabilities (do NOT open public issues)
+* Security fix contribution process
+* Coordinated disclosure timeline
 
 == Development Workflow
 
-=== Branches
+=== Branch Strategy
 
-* `main`: Stable release branch
-* `develop`: Integration branch
-* `feat/*`: Feature branches
-* `fix/*`: Bug fix branches
+[source]
+----
+main ──────────────────────────────────► (stable releases)
+       ↑
+develop ───────────────────────────────► (integration)
+       ↑        ↑        ↑
+    feat/a   feat/b   fix/c ───────────► (feature/fix branches)
+----
+
+* `main`: Stable releases only, protected
+* `develop`: Integration branch, CI required
+* `feat/*`: Feature branches (from develop)
+* `fix/*`: Bug fix branches (from develop)
+* `hotfix/*`: Critical fixes (from main)
 * `docs/*`: Documentation branches
+* `release/*`: Release preparation
+
+=== Review Process
+
+1. **Automated checks**: CI must pass
+2. **Perimeter 2+**: At least one approval required
+3. **Core review**: For security/architecture changes
+4. **Merge strategy**: Squash for feature branches
 
 === Release Process
 
+See link:GOVERNANCE.adoc[GOVERNANCE.adoc] for full details.
+
 1. Features merged to `develop`
-2. Release candidate created
-3. Testing and fixes
-4. Merge to `main`
-5. Tag release
+2. Release branch created: `release/vX.Y.Z`
+3. Testing and stabilization
+4. Version bump and CHANGELOG
+5. Merge to `main` and tag
 6. Publish crates and binaries
+7. Merge back to `develop`
+
+== Just Tasks Reference
+
+[source,bash]
+----
+just --list              # Show all tasks
+just setup               # Setup development environment
+just build               # Build debug
+just build-release       # Build release
+just test                # Run all tests
+just test-coverage       # Run with coverage
+just lint                # Run clippy
+just fmt                 # Format code
+just check-all           # All CI checks
+just doc                 # Generate documentation
+just audit               # Security audit
+just audit-licence       # SPDX license check
+----
 
 == Getting Help
 
-* GitHub Discussions for questions
-* Discord for real-time chat
-* Issue tracker for bugs/features
+* **GitHub Discussions**: Questions, ideas, show-and-tell
+* **Issue Tracker**: Bugs and feature requests
+* **Discord**: Real-time community chat (link in README)
+* **Office Hours**: Monthly video calls (announced in Discussions)
 
 == Recognition
 
 Contributors are recognized in:
-* CHANGELOG.md for contributions
-* README.adoc acknowledgements
-* GitHub contributors graph
 
-Thank you for contributing to Panoptes!
+* link:CHANGELOG.md[CHANGELOG.md] for each release
+* link:README.adoc[README.adoc] acknowledgements section
+* GitHub contributors graph
+* Annual contributor spotlight (blog post)
+
+== Developer Certificate of Origin
+
+By contributing, you certify that:
+
+[source]
+----
+Developer Certificate of Origin
+Version 1.1
+
+Copyright (C) 2004, 2006 The Linux Foundation and its contributors.
+
+Everyone is permitted to copy and distribute verbatim copies of this
+license document, but changing it is not allowed.
+
+Developer's Certificate of Origin 1.1
+
+By making a contribution to this project, I certify that:
+
+(a) The contribution was created in whole or in part by me and I
+    have the right to submit it under the open source license
+    indicated in the file; or
+
+(b) The contribution is based upon previous work that, to the best
+    of my knowledge, is covered under an appropriate open source
+    license and I have the right under that license to submit that
+    work with modifications, whether created in whole or in part
+    by me, under the same open source license (unless I am
+    permitted to submit under a different license), as indicated
+    in the file; or
+
+(c) The contribution was provided directly to me by some other
+    person who certified (a), (b) or (c) and I have not modified
+    it.
+
+(d) I understand and agree that this project and the contribution
+    are public and that a record of the contribution (including all
+    personal information I submit with it, including my sign-off) is
+    maintained indefinitely and may be redistributed consistent with
+    this project or the open source license(s) involved.
+----
+
+Sign your commits with: `git commit -s`
+
+---
+
+Thank you for contributing to Panoptes! Every contribution makes a difference.
+
+_Last updated: 2024-12-01_

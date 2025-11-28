@@ -1,0 +1,283 @@
+// SPDX-FileCopyrightText: 2024 Panoptes Contributors
+// SPDX-License-Identifier: MIT
+= RMR Utilities: Reputation, Merit, Rights
+:toc: left
+:toclevels: 3
+:icons: font
+:sectnums:
+
+== Overview
+
+RMR (Reputation, Merit, Rights) utilities provide the framework for recognizing contributions, measuring merit, and ensuring rights within the Panoptes ecosystem.
+
+== Reputation System
+
+=== Definition
+
+Reputation represents the accumulated trust and recognition earned through participation in the project.
+
+=== Reputation Sources
+
+[cols="1,2,1"]
+|===
+|Source |Description |Weight
+
+|**Code Contributions**
+|Merged pull requests
+|High
+
+|**Documentation**
+|Improved docs, wiki, examples
+|Medium
+
+|**Issue Reports**
+|Quality bug reports
+|Low-Medium
+
+|**Code Review**
+|Thoughtful PR reviews
+|Medium
+
+|**Community Support**
+|Helping others in discussions
+|Low-Medium
+
+|**Security Reports**
+|Responsible disclosure
+|High
+
+|**Mentorship**
+|Onboarding new contributors
+|Medium
+|===
+
+=== Reputation Levels
+
+[cols="1,1,2"]
+|===
+|Level |Name |Description
+
+|0
+|New
+|First-time contributor
+
+|1
+|Member
+|Has merged contribution
+
+|2
+|Regular
+|Multiple accepted contributions
+
+|3
+|Trusted
+|Consistent quality contributions
+
+|4
+|Expert
+|Perimeter 2 contributor
+
+|5
+|Core
+|Perimeter 1 maintainer
+|===
+
+=== Reputation Implementation
+
+Reputation is tracked implicitly through:
+
+1. **Git history**: Commit count and impact
+2. **GitHub metrics**: Issues closed, PRs merged
+3. **CHANGELOG entries**: Named contributions
+4. **MAINTAINERS.md**: Official recognition
+
+== Merit System
+
+=== Definition
+
+Merit is the objective measurement of contribution value to the project.
+
+=== Merit Criteria
+
+==== Code Merit
+
+* **Functionality**: Does it work correctly?
+* **Tests**: Is it well-tested?
+* **Documentation**: Is it documented?
+* **Style**: Does it follow conventions?
+* **Security**: Is it secure?
+* **Performance**: Is it efficient?
+
+==== Non-Code Merit
+
+* **Clarity**: Is the report/suggestion clear?
+* **Completeness**: Is sufficient detail provided?
+* **Usefulness**: Does it help the project?
+* **Timeliness**: Is it relevant now?
+
+=== Merit Evaluation
+
+Merit is evaluated during:
+
+1. **PR Review**: Code quality assessment
+2. **Issue Triage**: Report quality assessment
+3. **Perimeter Promotion**: Advancement consideration
+
+=== Merit Recognition
+
+[cols="1,2"]
+|===
+|Recognition |Criteria
+
+|**CHANGELOG mention**
+|Any merged contribution
+
+|**README acknowledgment**
+|Significant contributions
+
+|**Perimeter advancement**
+|Sustained high-merit contributions
+
+|**Core invitation**
+|Exceptional, sustained merit
+|===
+
+== Rights Framework
+
+=== Fundamental Rights
+
+All participants have these rights:
+
+[cols="1,2"]
+|===
+|Right |Description
+
+|**Participation**
+|Anyone can contribute
+
+|**Attribution**
+|Credit for contributions
+
+|**Privacy**
+|No tracking without consent
+
+|**Appeal**
+|Challenge decisions
+
+|**Exit**
+|Leave at any time
+
+|**Data**
+|Access and export your data
+|===
+
+=== Level-Based Rights
+
+==== Level 0-1 (New/Member)
+
+* Submit issues and PRs
+* Participate in discussions
+* Fork and modify
+* Use the software
+
+==== Level 2-3 (Regular/Trusted)
+
+* Same as above, plus:
+* Suggest RFC topics
+* Vote in community polls
+* Access to development Discord
+
+==== Level 4 (Expert/Perimeter 2)
+
+* Same as above, plus:
+* Triage issues
+* Review PRs
+* Merge to feature branches
+* Nominate new contributors
+
+==== Level 5 (Core/Perimeter 1)
+
+* Same as above, plus:
+* Merge to all branches
+* Create releases
+* Security response team
+* Governance decisions
+* Financial decisions
+
+=== Rights Protection
+
+Rights are protected through:
+
+1. **Code of Conduct**: Behavioral expectations
+2. **Governance Document**: Decision processes
+3. **Escalation Path**: Appeal procedures
+4. **Transparency**: Public discussions
+
+== RMR Utilities Implementation
+
+=== Querying Contributions
+
+[source,bash]
+----
+# View contributor statistics
+git shortlog -sn --all
+
+# View contribution impact
+git log --author="username" --oneline --stat
+
+# View file contributions
+git log --follow -p -- filename
+----
+
+=== Contributor Dashboard (Future)
+
+Planned web dashboard features:
+
+* Contribution timeline
+* Merit score (if implemented)
+* Badges and achievements
+* Comparison with peers (opt-in)
+
+=== Automated Recognition
+
+[source,yaml]
+----
+# .github/workflows/contributor-recognition.yml
+name: Recognize Contributors
+on:
+  push:
+    branches: [main]
+
+jobs:
+  recognize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update contributors
+        run: |
+          git shortlog -sn --all > CONTRIBUTORS.txt
+----
+
+== Integration with MAA
+
+RMR utilities complement MAA:
+
+* **Reputation** → Who is accountable (trust level)
+* **Merit** → What they're accountable for (contribution quality)
+* **Rights** → What accountability protects (participant rights)
+
+== Governance Integration
+
+RMR informs governance decisions:
+
+* **Perimeter advancement**: Based on reputation and merit
+* **Voting rights**: Based on contribution level
+* **Decision weight**: Higher levels have more influence
+* **Conflict resolution**: Rights framework guides appeals
+
+== Related Documents
+
+* link:maa-framework.adoc[MAA Framework] - Accountability
+* link:rmo-utilities.adoc[RMO Utilities] - Obligations
+* link:../../GOVERNANCE.adoc[Governance Model]
+* link:../../CONTRIBUTING.adoc[Contributing Guide]

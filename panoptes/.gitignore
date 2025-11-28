@@ -1,0 +1,190 @@
+# SPDX-FileCopyrightText: 2024 Panoptes Contributors
+# SPDX-License-Identifier: MIT
+#
+# Panoptes .gitignore - RSR Gold Compliant
+#
+
+# =============================================================================
+# Rust / Cargo
+# =============================================================================
+/target/
+**/*.rs.bk
+Cargo.lock.bak
+
+# =============================================================================
+# Build Artifacts
+# =============================================================================
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+
+# =============================================================================
+# IDE & Editor
+# =============================================================================
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains (RustRover, IntelliJ)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim/Neovim
+*.swp
+*.swo
+*~
+.vim/
+tags
+.tags
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# =============================================================================
+# Operating System
+# =============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Linux
+.directory
+.Trash-*
+
+# =============================================================================
+# Development
+# =============================================================================
+# Coverage
+/coverage/
+*.gcov
+*.gcda
+*.gcno
+tarpaulin-report.html
+lcov.info
+cobertura.xml
+
+# Benchmarks
+/criterion/
+/flamegraph.svg
+
+# Documentation output
+/docs/_build/
+/docs/html/
+/target/doc/
+
+# Test artifacts
+*.profraw
+*.profdata
+
+# =============================================================================
+# Environment & Secrets
+# =============================================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+.secrets
+
+# =============================================================================
+# Database & State
+# =============================================================================
+*.db
+*.db-journal
+*.sqlite
+*.sqlite-journal
+panoptes.db
+history.jsonl
+
+# =============================================================================
+# Logs
+# =============================================================================
+*.log
+logs/
+*.log.*
+
+# =============================================================================
+# Nix
+# =============================================================================
+/result
+/result-*
+.direnv/
+
+# =============================================================================
+# Container
+# =============================================================================
+*.tar
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+
+# =============================================================================
+# Distribution
+# =============================================================================
+/dist/
+*.deb
+*.rpm
+*.pkg
+*.dmg
+*.AppImage
+*.snap
+
+# =============================================================================
+# Temporary Files
+# =============================================================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.old
+tmp/
+temp/
+
+# =============================================================================
+# Project Specific
+# =============================================================================
+# Local configuration overrides
+config.local.json
+config.local.ncl
+
+# SBOM output
+sbom.json
+sbom.spdx
+
+# Audit output
+audit-report.json

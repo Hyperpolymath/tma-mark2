@@ -1,0 +1,160 @@
+# SPDX-FileCopyrightText: 2024 Panoptes Contributors
+# SPDX-License-Identifier: MIT
+#
+# Panoptes .gitattributes - RSR Gold Compliant
+#
+
+# =============================================================================
+# Default Behavior
+# =============================================================================
+* text=auto eol=lf
+
+# =============================================================================
+# Source Code
+# =============================================================================
+*.rs        text diff=rust
+*.toml      text
+*.json      text
+*.ncl       text
+*.nix       text
+
+# =============================================================================
+# Documentation
+# =============================================================================
+*.md        text diff=markdown
+*.adoc      text
+*.txt       text
+*.rst       text
+
+# =============================================================================
+# Web
+# =============================================================================
+*.html      text diff=html
+*.css       text diff=css
+*.js        text
+*.ts        text
+*.jsx       text
+*.tsx       text
+
+# =============================================================================
+# Configuration
+# =============================================================================
+*.yml       text
+*.yaml      text
+*.xml       text
+*.ini       text
+*.cfg       text
+*.conf      text
+
+# =============================================================================
+# Shell Scripts
+# =============================================================================
+*.sh        text eol=lf
+*.bash      text eol=lf
+*.zsh       text eol=lf
+*.fish      text eol=lf
+Justfile    text eol=lf
+Makefile    text eol=lf
+
+# =============================================================================
+# Container
+# =============================================================================
+Containerfile   text eol=lf
+Dockerfile      text eol=lf
+*.dockerfile    text eol=lf
+
+# =============================================================================
+# Git
+# =============================================================================
+.gitattributes  text
+.gitignore      text
+.gitmodules     text
+
+# =============================================================================
+# Binary Files (do not diff)
+# =============================================================================
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.webp      binary
+*.svg       text
+*.bmp       binary
+*.tiff      binary
+*.tif       binary
+
+*.pdf       binary
+*.doc       binary
+*.docx      binary
+*.xls       binary
+*.xlsx      binary
+*.ppt       binary
+*.pptx      binary
+
+*.zip       binary
+*.tar       binary
+*.gz        binary
+*.bz2       binary
+*.xz        binary
+*.7z        binary
+*.rar       binary
+
+*.wasm      binary
+*.exe       binary
+*.dll       binary
+*.so        binary
+*.dylib     binary
+*.a         binary
+*.o         binary
+
+*.db        binary
+*.sqlite    binary
+
+*.mp3       binary
+*.mp4       binary
+*.wav       binary
+*.flac      binary
+*.ogg       binary
+*.m4a       binary
+*.mkv       binary
+*.avi       binary
+*.mov       binary
+
+*.ttf       binary
+*.otf       binary
+*.woff      binary
+*.woff2     binary
+*.eot       binary
+
+# =============================================================================
+# Lock Files (generated, do not merge)
+# =============================================================================
+Cargo.lock      text -diff linguist-generated
+flake.lock      text -diff linguist-generated
+package-lock.json text -diff linguist-generated
+
+# =============================================================================
+# Linguist Overrides (for GitHub stats)
+# =============================================================================
+*.adoc          linguist-documentation
+docs/**         linguist-documentation
+*.md            linguist-documentation
+LICENSE.txt     linguist-documentation
+
+# Ensure Rust is detected as primary language
+*.rs            linguist-detectable=true
+
+# Vendor directories (if any)
+vendor/**       linguist-vendored
+
+# =============================================================================
+# Export Ignore (for git archive)
+# =============================================================================
+.gitattributes  export-ignore
+.gitignore      export-ignore
+.github/        export-ignore
+.gitlab-ci.yml  export-ignore
+.editorconfig   export-ignore
+.envrc          export-ignore
+.direnv/        export-ignore

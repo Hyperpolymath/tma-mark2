@@ -1,0 +1,108 @@
+// SPDX-FileCopyrightText: 2024 Panoptes Contributors
+// SPDX-License-Identifier: MIT
+= Panoptes Architecture Documentation
+:toc: left
+:toclevels: 3
+:icons: font
+:sectnums:
+
+== Overview
+
+This directory contains architecture documentation for the Panoptes project, following RSR Gold compliance standards.
+
+== Document Index
+
+=== Core Architecture
+
+* link:overview.adoc[Architecture Overview] - High-level system design
+* link:analyzers.adoc[Analyzer Plugin System] - File analyzer architecture
+* link:data-model.adoc[Data Model] - Database schema and data flow
+
+=== RSR Compliance
+
+* link:maa-framework.adoc[MAA Framework] - Mutually Assured Accountability
+* link:rmr-utilities.adoc[RMR Utilities] - Reputation, Merit, Rights
+* link:rmo-utilities.adoc[RMO Utilities] - Responsibility, Monitoring, Obligations
+* link:security-architecture.adoc[Security Architecture] - Security design principles
+
+=== Technical Specifications
+
+* link:api-design.adoc[API Design] - REST API and internal interfaces
+* link:crdt-state.adoc[CRDT State Management] - Distributed state (future)
+* link:offline-first.adoc[Offline-First Design] - Local-first principles
+
+== Architectural Principles
+
+. **Local-First**: All processing happens locally
+. **Privacy by Design**: No data leaves the system
+. **Reversibility**: Every operation can be undone
+. **Plugin Architecture**: Extensible analyzer system
+. **Type Safety**: Rust's ownership model
+. **Memory Safety**: No unsafe code
+. **Offline-First**: Works without network
+
+== Component Diagram
+
+[source]
+----
+┌─────────────────────────────────────────────────────────────────┐
+│                         Panoptes CLI                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │
+│  │   Scanner   │  │   Watcher   │  │  Web API    │            │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘            │
+│         │                │                │                     │
+│         └────────────────┼────────────────┘                     │
+│                          │                                      │
+│                  ┌───────▼───────┐                              │
+│                  │   Analyzer    │                              │
+│                  │   Registry    │                              │
+│                  └───────┬───────┘                              │
+│                          │                                      │
+│    ┌─────────┬───────────┼───────────┬─────────┐               │
+│    │         │           │           │         │               │
+│ ┌──▼──┐ ┌──▼──┐ ┌────▼────┐ ┌───▼──┐ ┌──▼──┐            │
+│ │Image│ │ PDF │ │  Audio  │ │Video │ │Code │ ...        │
+│ └──┬──┘ └──┬──┘ └────┬────┘ └───┬──┘ └──┬──┘            │
+│    │       │         │          │       │                      │
+│    └───────┴─────────┼──────────┴───────┘                      │
+│                      │                                          │
+│              ┌───────▼───────┐                                  │
+│              │    Ollama     │                                  │
+│              │    Client     │                                  │
+│              └───────┬───────┘                                  │
+│                      │                                          │
+│         ┌────────────┼────────────┐                            │
+│         │            │            │                            │
+│  ┌──────▼──────┐ ┌──▼───┐ ┌──────▼──────┐                     │
+│  │   SQLite    │ │History│ │   Config    │                     │
+│  │   Database  │ │ JSONL │ │   System    │                     │
+│  └─────────────┘ └───────┘ └─────────────┘                     │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+----
+
+== Technology Stack
+
+[cols="1,2"]
+|===
+|Component |Technology
+
+|Language |Rust 1.75+
+|Async Runtime |Tokio
+|CLI Framework |Clap v4
+|Web Framework |Axum
+|Database |SQLite (rusqlite)
+|AI Backend |Ollama (Moondream)
+|Configuration |JSON + Nickel
+|Build System |Cargo + Just
+|Containers |Podman + Wolfi
+|Reproducibility |Nix Flakes
+|===
+
+== Related Documents
+
+* link:../wiki/Home.adoc[Wiki Home]
+* link:../../README.adoc[Project README]
+* link:../../CONTRIBUTING.adoc[Contributing Guide]

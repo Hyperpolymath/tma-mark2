@@ -1,0 +1,258 @@
+// SPDX-FileCopyrightText: 2024 Panoptes Contributors
+// SPDX-License-Identifier: MIT
+= Mutually Assured Accountability (MAA) Framework
+:toc: left
+:toclevels: 3
+:icons: font
+:sectnums:
+
+== Overview
+
+The Mutually Assured Accountability (MAA) framework ensures that all participants in the Panoptes ecosystem - users, contributors, and maintainers - are accountable for their actions while being protected by transparent processes.
+
+== Core Principles
+
+=== 1. Transparency
+
+All significant actions are logged and auditable:
+
+* **File Operations**: Every rename, tag, and category change is recorded
+* **System Changes**: Configuration modifications are versioned
+* **Access Patterns**: Who accessed what and when (optional)
+
+=== 2. Non-Repudiation
+
+Actions cannot be falsely denied:
+
+* **Git History**: All code changes are signed and attributed
+* **Operation Logs**: JSONL history with timestamps
+* **Provenance Chains**: `.well-known/provenance.json`
+
+=== 3. Reversibility
+
+Every action can be undone:
+
+* **File Renames**: Full undo history maintained
+* **Tag Changes**: Previous state preserved
+* **Configuration**: Version history available
+
+=== 4. Auditability
+
+Third parties can verify compliance:
+
+* **SPDX Headers**: License compliance verification
+* **SBOM Generation**: Dependency audit trails
+* **Security Scans**: Automated vulnerability detection
+
+== Implementation in Panoptes
+
+=== Audit Trail Architecture
+
+[source,rust]
+----
+/// Every operation is recorded with full context
+pub struct AuditEntry {
+    /// Unique operation ID
+    pub id: Uuid,
+    /// Operation timestamp
+    pub timestamp: DateTime<Utc>,
+    /// User/process that performed action
+    pub actor: Actor,
+    /// The operation performed
+    pub operation: Operation,
+    /// State before operation
+    pub before: Option<State>,
+    /// State after operation
+    pub after: State,
+    /// Cryptographic signature
+    pub signature: Option<Signature>,
+}
+----
+
+=== Provenance Tracking
+
+Every file processed by Panoptes maintains provenance:
+
+[source,json]
+----
+{
+  "file_id": "abc123",
+  "provenance_chain": [
+    {
+      "timestamp": "2024-12-01T10:00:00Z",
+      "operation": "analyze",
+      "actor": "panoptes-3.0.0",
+      "result": "success"
+    },
+    {
+      "timestamp": "2024-12-01T10:00:05Z",
+      "operation": "rename",
+      "actor": "user@local",
+      "from": "IMG_2847.jpg",
+      "to": "sunset-mountain.jpg"
+    }
+  ]
+}
+----
+
+=== Accountability Levels
+
+[cols="1,2,2"]
+|===
+|Level |Scope |Verification
+
+|**L1: Basic**
+|File operations
+|JSONL history file
+
+|**L2: Enhanced**
+|All operations + config
+|SQLite audit table
+
+|**L3: Full**
+|Everything + signatures
+|Signed audit trail
+|===
+
+== User Accountability
+
+=== What Users Are Accountable For
+
+1. **Actions taken**: Every scan, rename, tag operation
+2. **Configuration choices**: Settings that affect behavior
+3. **System resources**: CPU, memory, disk usage
+
+=== What Users Are Protected From
+
+1. **Data loss**: Reversible operations
+2. **Privacy violations**: Local-only processing
+3. **Vendor lock-in**: Open formats, exportable data
+
+=== User Rights Under MAA
+
+1. **Right to understand**: Clear documentation
+2. **Right to audit**: Access to all logs
+3. **Right to export**: Data portability
+4. **Right to delete**: Full data removal
+5. **Right to undo**: Reversible operations
+
+== Contributor Accountability
+
+=== What Contributors Are Accountable For
+
+1. **Code quality**: Tests, documentation, standards
+2. **Security awareness**: No vulnerabilities introduced
+3. **License compliance**: SPDX headers, DCO sign-off
+
+=== What Contributors Are Protected From
+
+1. **Arbitrary rejection**: Clear contribution guidelines
+2. **Scope creep**: Defined responsibilities
+3. **Burnout**: No obligation to maintain
+
+=== Contributor Rights Under MAA
+
+1. **Attribution**: Credit in CHANGELOG
+2. **Fair review**: Timely, constructive feedback
+3. **Appeals**: Path to escalate decisions
+
+== Maintainer Accountability
+
+=== What Maintainers Are Accountable For
+
+1. **Security response**: SLA-bound vulnerability handling
+2. **Release quality**: Testing before release
+3. **Community health**: Code of Conduct enforcement
+
+=== What Maintainers Are Protected From
+
+1. **Unlimited liability**: Volunteer status recognized
+2. **Harassment**: CoC protections
+3. **Burnout**: Succession planning, shared load
+
+=== Maintainer Rights Under MAA
+
+1. **Decision authority**: Final say on technical matters
+2. **Time boundaries**: No 24/7 availability expected
+3. **Retirement**: Emeritus status available
+
+== Technical Implementation
+
+=== History System
+
+[source,rust]
+----
+/// Records all operations for MAA compliance
+pub struct HistoryManager {
+    path: PathBuf,
+    retention_days: u32,
+    signature_key: Option<SigningKey>,
+}
+
+impl HistoryManager {
+    /// Record an operation with full accountability context
+    pub async fn record(&self, entry: HistoryEntry) -> Result<()> {
+        // Validate entry completeness
+        entry.validate()?;
+
+        // Add timestamp if not present
+        let entry = entry.with_timestamp(Utc::now());
+
+        // Sign if key available
+        let entry = if let Some(key) = &self.signature_key {
+            entry.sign(key)?
+        } else {
+            entry
+        };
+
+        // Append to JSONL
+        self.append(entry).await
+    }
+}
+----
+
+=== Audit Queries
+
+[source,bash]
+----
+# Who renamed this file?
+panoptes history --file sunset.jpg --operation rename
+
+# What happened in the last hour?
+panoptes history --since 1h
+
+# Export audit trail for compliance
+panoptes history export --format csv --signed
+----
+
+== Compliance Verification
+
+=== Self-Assessment
+
+[source,bash]
+----
+# Run MAA compliance check
+just maa-check
+
+# Expected output:
+# ✅ History logging: enabled
+# ✅ SPDX headers: 100% coverage
+# ✅ Provenance file: present
+# ✅ Audit trail: intact
+# ✅ Signature verification: optional (L3)
+----
+
+=== Third-Party Audit
+
+1. Clone repository
+2. Run `just validate`
+3. Review `.well-known/provenance.json`
+4. Verify SPDX compliance: `just audit-licence`
+5. Check security: `cargo audit`
+
+== Related Documents
+
+* link:rmr-utilities.adoc[RMR Utilities] - Reputation, Merit, Rights
+* link:rmo-utilities.adoc[RMO Utilities] - Responsibility, Monitoring, Obligations
+* link:../../SECURITY.md[Security Policy]
+* link:../../GOVERNANCE.adoc[Governance Model]
