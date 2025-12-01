@@ -120,7 +120,7 @@ logs:
 
 # Container status
 status:
-    @podman ps -a --filter name={{ container_name }} --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "  Not running"
+    @podman ps -a --filter name={{ container_name }} --format 'table {{"{{"}}.Names{{"}}"}}	{{"{{"}}.Status{{"}}"}}	{{"{{"}}.Ports{{"}}"}}' 2>/dev/null || echo "  Not running"
 
 # Shell into running container
 shell:
