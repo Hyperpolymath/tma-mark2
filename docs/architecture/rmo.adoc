@@ -1,160 +1,241 @@
 // SPDX-FileCopyrightText: 2024 eTMA Handler Contributors
 // SPDX-License-Identifier: MIT
-= RMO Utility - Remove Obliterative
+= RMO Utility - Role Matrix Operations
 :toc: left
 :icons: font
 
 == Overview
 
-RMO (Remove Obliterative) provides permanent, unrecoverable deletion for eTMA Handler. Once data is removed via RMO, it cannot be recovered.
+The RMO (Role Matrix Operations) utility defines the operational procedures for different roles within the eTMA Handler project. This document specifies what each role can do and the processes they follow.
 
-== Concept
+== Role Definitions
 
-RMO is the final stage of data deletion:
+=== BDFL (Benevolent Dictator For Life)
 
-* Permanently removes data from storage
-* Overwrites to prevent forensic recovery (optional)
-* Required for GDPR "right to erasure" compliance
-* Irreversible by design
+[cols="1,3"]
+|===
+| Attribute | Value
 
-== Usage
+| Count | 1
+| Selection | Founder or succession
+| Term | Indefinite
+| Removal | Voluntary or incapacity
+|===
 
-=== Permanent Delete Operations
+==== Permissions
 
-[source,elixir]
+* All permissions of other roles
+* Governance changes
+* Final dispute resolution
+* Succession planning
+
+==== Operations
+
+* Annual roadmap approval
+* Quarterly governance review
+* Exception handling for all processes
+
+=== Core Maintainer
+
+[cols="1,3"]
+|===
+| Attribute | Value
+
+| Count | 2-5
+| Selection | BDFL appointment with community input
+| Term | 2 years, renewable
+| Removal | BDFL decision or voluntary
+|===
+
+==== Permissions
+
+* Merge to main branch
+* Release management
+* Maintainer nomination
+* Security response coordination
+
+==== Operations
+
+[source]
 ----
-# Permanently delete (requires confirmation)
-EtmaHandler.Assignments.obliterate(assignment_id, confirm: true)
+# Daily
+- Review open PRs (SLA: 48 hours for initial review)
+- Triage new issues
 
-# Permanently delete with secure overwrite
-EtmaHandler.Assignments.obliterate(assignment_id,
-  confirm: true,
-  secure: true
-)
-----
+# Weekly
+- Release planning
+- Community engagement
 
-=== Bulk Operations
+# Monthly
+- Dependency updates
+- Security review
 
-[source,elixir]
-----
-# Purge all items past retention (called by scheduler)
-EtmaHandler.Recovery.purge_expired()
-
-# Emergency purge specific items
-EtmaHandler.Recovery.obliterate_batch(ids, confirm: true)
-----
-
-== Safety Measures
-
-RMO operations require explicit safeguards:
-
-=== Confirmation Required
-
-[source,elixir]
-----
-# This will raise an error
-EtmaHandler.Assignments.obliterate(id)
-# => ** (ArgumentError) RMO requires explicit confirmation
-
-# This works
-EtmaHandler.Assignments.obliterate(id, confirm: true)
-----
-
-=== Audit Before Delete
-
-Before any RMO operation:
-
-1. Item metadata logged to audit trail
-2. Checksum recorded for verification
-3. Deletion timestamp recorded
-4. Reason captured (if provided)
-
-=== No Bulk Without Filter
-
-[source,elixir]
-----
-# This will raise an error (too dangerous)
-EtmaHandler.Recovery.obliterate_all(confirm: true)
-# => ** (ArgumentError) Must specify filter criteria
-
-# This works
-EtmaHandler.Recovery.obliterate_batch(
-  deleted_before: ~U[2024-01-01 00:00:00Z],
-  confirm: true
-)
+# Quarterly
+- Roadmap review
+- Contributor recognition
 ----
 
-== Secure Overwrite
+=== Expert Contributor
 
-When `secure: true` is specified:
+[cols="1,3"]
+|===
+| Attribute | Value
 
-1. Data overwritten with random bytes
-2. Three-pass overwrite (DoD 5220.22-M pattern)
-3. Storage compacted after operation
+| Count | Unlimited
+| Selection | Core Maintainer invitation
+| Term | Indefinite
+| Removal | Inactivity (12 months) or conduct
+|===
 
-[source,elixir]
+==== Permissions
+
+* Approve PRs (2 approvals required for merge)
+* Assign/close issues
+* Moderate discussions
+* Write access to non-main branches
+
+==== Operations
+
+[source]
 ----
-config :etma_handler, :rmo,
-  secure_default: false,  # Set true for high-security environments
-  overwrite_passes: 3
-----
+# Per contribution
+- Self-assign issues
+- Submit PRs with tests
+- Review peer PRs
 
-== GDPR Compliance
+# Weekly
+- Participate in discussions
+- Help with issue triage
 
-RMO supports "right to erasure" requests:
-
-[source,elixir]
-----
-# Process erasure request
-EtmaHandler.GDPR.process_erasure_request(
-  student_id: "A1234567",
-  confirm: true,
-  audit_reference: "GDPR-2024-001"
-)
-----
-
-This will:
-
-1. Find all data associated with identifier
-2. Log erasure request to permanent audit
-3. Obliterate all matching data
-4. Generate compliance certificate
-
-== Audit Trail
-
-RMO operations create permanent audit records:
-
-[source,json]
-----
-{
-  "operation": "rmo",
-  "timestamp": "2024-12-01T10:30:00Z",
-  "item_type": "assignment",
-  "item_id": "abc123",
-  "checksum": "sha256:...",
-  "reason": "gdpr_erasure",
-  "reference": "GDPR-2024-001",
-  "secure_overwrite": true
-}
+# Monthly
+- Update relevant documentation
 ----
 
-Audit records are retained even after data deletion.
+=== Community Contributor
 
-== Storage Recovery
+[cols="1,3"]
+|===
+| Attribute | Value
 
-After RMO operations, storage is reclaimed:
+| Count | Unlimited
+| Selection | Open (anyone)
+| Term | Indefinite
+| Removal | Conduct violation
+|===
 
-[source,elixir]
+==== Permissions
+
+* Fork repository
+* Submit pull requests
+* Open issues
+* Participate in discussions
+
+==== Operations
+
+[source]
 ----
-# Compact database after bulk deletions
-EtmaHandler.Repo.compact()
+# Per contribution
+- Follow CONTRIBUTING.adoc
+- Sign off commits (DCO)
+- Respond to review feedback
 
-# Check storage stats
-EtmaHandler.Repo.stats()
-# => %{size: 1_234_567, deleted_space: 0, ...}
+# Optional
+- Help other contributors
+- Improve documentation
 ----
 
-== See Also
+== Operational Procedures
 
-* link:rmr.adoc[RMR Utility] - Reversible deletion
-* link:../REVERSIBILITY.md[Reversibility Policy]
+=== Pull Request Flow
+
+[source]
+----
+1. Contributor opens PR
+2. CI runs automatically
+3. Maintainer/Expert reviews (48h SLA)
+4. Contributor addresses feedback
+5. Second approval (if required)
+6. Maintainer merges
+----
+
+=== Issue Lifecycle
+
+[source]
+----
+New → Triaged → Assigned → In Progress → Review → Closed
+         ↓         ↓           ↓
+    Won't Fix  Unassigned   Blocked
+----
+
+=== Release Process
+
+[source]
+----
+1. Feature freeze (branch cut)
+2. Release candidate testing
+3. Changelog finalization
+4. Version bump
+5. Tag creation
+6. Build artifacts
+7. GitHub release
+8. Announcement
+----
+
+=== Security Response
+
+[source]
+----
+1. Report received (T+0)
+2. Acknowledgment (T+24h)
+3. Severity assessment (T+48h)
+4. Fix development (varies)
+5. Coordinated disclosure
+6. Public advisory
+----
+
+== Role Transitions
+
+=== Promotion Path
+
+[source]
+----
+Community Contributor
+        ↓ (3+ quality PRs, maintainer nomination)
+Expert Contributor
+        ↓ (6+ months active, BDFL appointment)
+Core Maintainer
+        ↓ (succession event)
+BDFL
+----
+
+=== Demotion/Removal
+
+[cols="2,2,2"]
+|===
+| Role | Reason | Process
+
+| Expert Contributor | Inactivity | Automatic after 12 months
+| Expert Contributor | Conduct | Core Maintainer decision
+| Core Maintainer | Inactivity | BDFL decision after 6 months
+| Core Maintainer | Conduct | BDFL decision
+|===
+
+== Metrics and Reporting
+
+=== Per-Role Metrics
+
+[cols="2,3"]
+|===
+| Role | Tracked Metrics
+
+| Core Maintainer | PR review time, release frequency
+| Expert Contributor | PRs reviewed, issues resolved
+| Community | PRs submitted, issue reports
+|===
+
+=== Reporting Cadence
+
+* Weekly: CI/CD status, open PR count
+* Monthly: Contributor activity summary
+* Quarterly: Project health metrics
+* Annually: Governance review
