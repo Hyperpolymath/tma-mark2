@@ -1,120 +1,107 @@
 // SPDX-FileCopyrightText: 2024 eTMA Handler Contributors
 // SPDX-License-Identifier: MIT
-= RMR Utility - Responsibility Matrix Registry
+= RMR Utility - Remove Reversible
 :toc: left
 :icons: font
 
 == Overview
 
-The RMR (Responsibility Matrix Registry) documents who is responsible for what within the eTMA Handler project. This utility provides a RACI-style matrix for project activities.
+RMR (Remove Reversible) provides soft-delete functionality for eTMA Handler. Data removed via RMR can be recovered within the retention period.
 
-== RACI Legend
+== Concept
 
-* **R** - Responsible (Does the work)
-* **A** - Accountable (Final decision maker)
-* **C** - Consulted (Provides input)
-* **I** - Informed (Kept up to date)
+RMR mirrors the Unix `rm -r` command semantically but adds reversibility:
 
-== Development Responsibilities
+* Data is marked as deleted but not immediately purged
+* Deleted items move to a recoverable state
+* Automatic purge after configurable retention period
+* Full audit trail maintained
 
-[cols="3,1,1,1,1"]
+== Usage
+
+=== Soft Delete Operations
+
+[source,elixir]
+----
+# Soft delete an assignment
+EtmaHandler.Assignments.soft_delete(assignment_id)
+
+# Soft delete with reason
+EtmaHandler.Assignments.soft_delete(assignment_id, reason: "duplicate")
+----
+
+=== Recovery Operations
+
+[source,elixir]
+----
+# List recoverable items
+EtmaHandler.Recovery.list_deleted()
+
+# Recover a specific item
+EtmaHandler.Recovery.restore(assignment_id)
+
+# Recover all items deleted in last hour
+EtmaHandler.Recovery.restore_since(~U[2024-01-01 12:00:00Z])
+----
+
+== Retention Policy
+
+[cols="2,1,2"]
 |===
-| Activity | Core Maintainers | Expert Contributors | Community | Users
+| Data Type | Default Retention | Configurable
 
-| Feature Development | R/A | R | C | I
-| Bug Fixes | R/A | R | R | I
-| Code Review | R/A | R | C | -
-| Testing | R | R | R | C
-| Documentation | R/A | R | R | C
-|===
-
-== Operations Responsibilities
-
-[cols="3,1,1,1,1"]
-|===
-| Activity | Core Maintainers | Expert Contributors | Community | Users
-
-| Release Management | R/A | C | I | I
-| Security Response | R/A | C | I | I
-| Issue Triage | R/A | R | C | C
-| Community Support | R | R | R | -
-|===
-
-== Governance Responsibilities
-
-[cols="3,1,1,1,1"]
-|===
-| Activity | BDFL | Core Maintainers | Community | Users
-
-| Roadmap Planning | A | R | C | C
-| Policy Changes | A | R | C | I
-| Maintainer Selection | A | R | C | I
-| Conflict Resolution | A | R | C | -
-|===
-
-== Component Ownership
-
-=== Core Components
-
-[cols="2,2,2"]
-|===
-| Component | Primary Owner | Backup Owner
-
-| `lib/etma_handler/` | Core Maintainers | Expert Contributors
-| `lib/etma_handler_web/` | Core Maintainers | Expert Contributors
-| `config/` | Core Maintainers | Expert Contributors
-| `test/` | All Contributors | Core Maintainers
+| Assignments | 30 days | Yes
+| Grades/Feedback | 30 days | Yes
+| Backups | 7 days | Yes
+| Audit Logs | 90 days | No (minimum)
 |===
 
-=== Infrastructure
+== Storage
 
-[cols="2,2,2"]
-|===
-| Component | Primary Owner | Backup Owner
+Soft-deleted items stored in:
 
-| CI/CD Pipeline | Core Maintainers | Expert Contributors
-| Nix Flakes | Core Maintainers | Community
-| Container Image | Core Maintainers | Expert Contributors
-| Release Binaries | Core Maintainers | Expert Contributors
-|===
+[source]
+----
+~/.local/share/etma_handler/
+├── data/           # Active data
+└── deleted/        # Soft-deleted (RMR) data
+    ├── assignments/
+    ├── grades/
+    └── manifest.json  # Deletion metadata
+----
 
-=== Documentation
+== Audit Trail
 
-[cols="2,2,2"]
-|===
-| Component | Primary Owner | Backup Owner
+Each RMR operation records:
 
-| README | Core Maintainers | All Contributors
-| API Docs | Core Maintainers | Expert Contributors
-| Architecture Docs | Core Maintainers | Expert Contributors
-| User Guide | All Contributors | Core Maintainers
-|===
+* Timestamp
+* Item type and ID
+* User/session identifier
+* Reason (if provided)
+* Scheduled purge date
 
-== Escalation Paths
+== Automatic Purge
 
-=== Technical Issues
+A background process runs daily to:
 
-1. Component Owner
-2. Core Maintainers
-3. BDFL (for deadlock)
+1. Check items past retention period
+2. Promote to RMO (obliterative delete)
+3. Update audit log
+4. Free storage space
 
-=== Community Issues
+== Configuration
 
-1. Community Moderators
-2. Core Maintainers
-3. BDFL
+In `config/config.exs`:
 
-=== Security Issues
+[source,elixir]
+----
+config :etma_handler, :rmr,
+  retention_days: 30,
+  auto_purge: true,
+  purge_schedule: "0 3 * * *"  # 3 AM daily
+----
 
-1. Security Team (security@example.org)
-2. Core Maintainers
-3. External Security Advisor
+== See Also
 
-== Updating This Registry
-
-Changes to the RMR require:
-
-1. Pull request with proposed changes
-2. Review by Core Maintainers
-3. 7-day comment period
-4. Merge by BDFL or delegate
+* link:rmo.adoc[RMO Utility] - Permanent deletion
+* link:../REVERSIBILITY.md[Reversibility Policy]
