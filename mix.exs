@@ -54,30 +54,29 @@ defmodule EtmaHandler.MixProject do
       # SweetXml for parsing legacy .fhi and .docx files
       {:sweet_xml, "~> 0.7"},
 
-      # --- The Logic & Config ---
-      # miniKanren for relational/logic programming ("What-If" calculator)
-      {:mini_kanren, "~> 0.3", optional: true},
-      # Optimist for strict CLI argument parsing
-      {:optimist, "~> 0.2", optional: true},
-
       # --- The Fort Knox Vault (Security) ---
       # Argon2id for password hashing (memory-hard, side-channel resistant)
       {:argon2_elixir, "~> 3.0"},
-      # BLAKE3 - blazing fast, secure hash function
-      {:blake3, "~> 1.0", optional: true},
-      # Post-quantum cryptography (ML-KEM-1024 / CRYSTALS-Kyber)
-      # Falls back to OTP 27+ native if available
-      {:pqclean, "~> 0.1", optional: true, github: "potatosalad/erlang-pqclean"},
-      # CBOR encoding for WebAuthn attestation parsing
-      {:cbor, "~> 1.0", optional: true},
-      # WASM plugins (sandboxed execution)
-      {:wasmex, "~> 0.8", optional: true},
 
       # --- System Integration ---
       # Watch Downloads folder for automatic file ingestion
       {:file_system, "~> 1.0"},
+
+      # --- Optional/Experimental (dev only) ---
+      # miniKanren for relational/logic programming ("What-If" calculator)
+      # {:mini_kanren, "~> 0.3", only: :dev},
+      # Optimist for strict CLI argument parsing
+      # {:optimist, "~> 0.2", only: :dev},
+      # BLAKE3 - blazing fast, secure hash function
+      # {:blake3, "~> 1.0", only: :dev},
+      # Post-quantum cryptography (ML-KEM-1024 / CRYSTALS-Kyber)
+      # {:pqclean, "~> 0.1", only: :dev, github: "potatosalad/erlang-pqclean"},
+      # CBOR encoding for WebAuthn attestation parsing
+      # {:cbor, "~> 1.0", only: :dev},
+      # WASM plugins (sandboxed execution)
+      # {:wasmex, "~> 0.8", only: :dev},
       # Binary wrapper for cross-platform distribution
-      {:burrito, "~> 1.0", optional: true}
+      {:burrito, "~> 1.0", only: :dev}
     ]
   end
 
