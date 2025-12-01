@@ -72,6 +72,12 @@ build:
 
 # Run the container (foreground)
 run:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! podman image exists {{ container_image }} 2>/dev/null; then
+        echo "  Image not found, building..."
+        just build
+    fi
     podman run --rm -it \
         -p {{ port }}:4000 \
         -v {{ data_dir }}:/data:Z \
@@ -228,4 +234,12 @@ _ensure-dirs:
 
 # Try to pull, fall back to build
 _pull-or-build:
-    @just pull 2>/dev/null || just build
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "  Checking for container image..."
+    if podman pull {{ container_image }} 2>/dev/null; then
+        echo "  Image pulled successfully"
+    else
+        echo "  Image not available, building locally..."
+        just build
+    fi

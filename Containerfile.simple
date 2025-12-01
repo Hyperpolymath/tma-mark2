@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: 2024 eTMA Handler Contributors
+# SPDX-License-Identifier: MIT
+
+# eTMA Handler - Simple Containerfile
+# Uses official Elixir image for easier builds
+
+# =============================================================================
+# Stage 1: Build
+# =============================================================================
+FROM docker.io/elixir:1.16-alpine AS builder
+
+# Install build deps
+RUN apk add --no-cache build-base git nodejs npm
+
+ENV MIX_ENV=prod
+
+WORKDIR /app
+
+# Install hex and rebar
+RUN mix local.hex --force && mix local.rebar --force
+
+# Copy deps first for caching
+COPY mix.exs mix.lock ./
+COPY config config
+RUN mix deps.get --only prod && mix deps.compile
+
+# Copy assets and build
+COPY assets assets
+COPY priv priv
+RUN mix assets.deploy || true
+
+# Copy source and compile
+COPY lib lib
+RUN mix compile
+
+# Build release
+RUN mix release
+
+# =============================================================================
+# Stage 2: Runtime
+# =============================================================================
+FROM docker.io/alpine:3.19
+
+RUN apk add --no-cache libstdc++ ncurses-libs openssl
+
+# Create user
+RUN addgroup -g 1000 etma && adduser -u 1000 -G etma -h /app -D etma
+
+WORKDIR /app
+
+# Copy release
+COPY --from=builder --chown=etma:etma /app/_build/prod/rel/etma_handler ./
+
+# Data dir
+RUN mkdir -p /data && chown etma:etma /data
+
+USER etma
+
+ENV PHX_HOST=0.0.0.0 \
+    PHX_PORT=4000 \
+    ETMA_DATA_DIR=/data
+
+EXPOSE 4000
+VOLUME ["/data"]
+
+CMD ["bin/etma_handler", "start"]
