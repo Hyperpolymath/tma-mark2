@@ -6,8 +6,6 @@
 #
 # The only command you need: just do-it
 #
-# That's it. Really. It handles everything.
-#
 
 set shell := ["bash", "-uc"]
 set positional-arguments := true
@@ -29,39 +27,31 @@ data_dir := env_var_or_default("ETMA_DATA_DIR", if os() == "windows" { "%APPDATA
 port := env_var_or_default("ETMA_PORT", "4000")
 
 # ============================================================================
-# 🚀 THE ONE COMMAND TO RULE THEM ALL
+# MAIN COMMANDS
 # ============================================================================
 
 # Show available commands
 default:
     @echo ""
-    @echo "  ╔═══════════════════════════════════════════════════════════╗"
-    @echo "  ║                    eTMA Handler                           ║"
-    @echo "  ║              Open University Marking Tool                 ║"
-    @echo "  ╠═══════════════════════════════════════════════════════════╣"
-    @echo "  ║                                                           ║"
-    @echo "  ║   just do-it     →  Set up everything and run            ║"
-    @echo "  ║                                                           ║"
-    @echo "  ║   That's it. That's all you need.                        ║"
-    @echo "  ║                                                           ║"
-    @echo "  ╚═══════════════════════════════════════════════════════════╝"
+    @echo "  eTMA Handler"
+    @echo "  ============"
+    @echo ""
+    @echo "  just do-it   - Set up everything and run"
     @echo ""
     @just --list --unsorted 2>/dev/null | grep -v "^Available" | grep -v "^$" || true
 
-# 🎯 THE COMMAND - Set up everything and run
+# Set up everything and run
 do-it: _check-podman _ensure-dirs
     @echo ""
-    @echo "  🎯 eTMA Handler - Let's do this!"
+    @echo "  eTMA Handler - Let's do this!"
     @echo ""
     @just _pull-or-build
     @echo ""
-    @echo "  ✅ Ready! Starting eTMA Handler..."
+    @echo "  Ready! Starting eTMA Handler..."
     @echo ""
-    @echo "  ┌─────────────────────────────────────────────────────────┐"
-    @echo "  │  Open your browser to: http://localhost:{{ port }}          │"
-    @echo "  │  Press Ctrl+C to stop                                   │"
-    @echo "  │  Your data is saved in: {{ data_dir }}                  │"
-    @echo "  └─────────────────────────────────────────────────────────┘"
+    @echo "  Open your browser to: http://localhost:{{ port }}"
+    @echo "  Press Ctrl+C to stop"
+    @echo "  Your data is saved in: {{ data_dir }}"
     @echo ""
     @just run
 
@@ -71,14 +61,14 @@ do-it: _check-podman _ensure-dirs
 
 # Pull the latest container image
 pull:
-    @echo "  📦 Pulling container image..."
-    podman pull {{ container_image }} || (echo "  ⚠️  Pull failed, will build locally" && exit 1)
+    @echo "  Pulling container image..."
+    -podman pull {{ container_image }}
 
-# Build the container locally (if you've cloned the repo)
+# Build the container locally
 build:
-    @echo "  🔨 Building container locally..."
+    @echo "  Building container locally..."
     podman build -t {{ local_image }} -t {{ container_image }} -f Containerfile .
-    @echo "  ✅ Build complete!"
+    @echo "  Build complete!"
 
 # Run the container (foreground)
 run:
@@ -90,7 +80,7 @@ run:
 
 # Run in background
 start: _check-podman _ensure-dirs
-    @echo "  🚀 Starting eTMA Handler in background..."
+    @echo "  Starting eTMA Handler in background..."
     -@podman stop {{ container_name }} 2>/dev/null || true
     -@podman rm {{ container_name }} 2>/dev/null || true
     podman run -d \
@@ -100,16 +90,16 @@ start: _check-podman _ensure-dirs
         --restart unless-stopped \
         {{ container_image }}
     @echo ""
-    @echo "  ✅ Running at http://localhost:{{ port }}"
-    @echo "     Stop with: just stop"
-    @echo "     Logs with: just logs"
+    @echo "  Running at http://localhost:{{ port }}"
+    @echo "  Stop with: just stop"
+    @echo "  Logs with: just logs"
 
 # Stop the container
 stop:
-    @echo "  🛑 Stopping eTMA Handler..."
+    @echo "  Stopping eTMA Handler..."
     -podman stop {{ container_name }} 2>/dev/null || true
     -podman rm {{ container_name }} 2>/dev/null || true
-    @echo "  ✅ Stopped"
+    @echo "  Stopped"
 
 # Restart the container
 restart: stop start
@@ -120,7 +110,7 @@ logs:
 
 # Container status
 status:
-    @podman ps -a --filter name={{ container_name }} --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "  Not running"
+    @podman ps -a --filter name={{ container_name }} 2>/dev/null || echo "  Not running"
 
 # Shell into running container
 shell:
@@ -132,22 +122,22 @@ shell:
 
 # Backup your data
 backup dest="./backup":
-    @echo "  💾 Backing up data..."
+    @echo "  Backing up data..."
     @mkdir -p {{ dest }}
     cp -r {{ data_dir }}/* {{ dest }}/ 2>/dev/null || echo "  No data to backup yet"
-    @echo "  ✅ Backed up to {{ dest }}"
+    @echo "  Backed up to {{ dest }}"
 
 # Restore from backup
 restore src:
-    @echo "  📥 Restoring from {{ src }}..."
+    @echo "  Restoring from {{ src }}..."
     @mkdir -p {{ data_dir }}
     cp -r {{ src }}/* {{ data_dir }}/
-    @echo "  ✅ Restored"
+    @echo "  Restored"
 
 # Where is my data?
 where:
-    @echo "  📂 Your data is stored at:"
-    @echo "     {{ data_dir }}"
+    @echo "  Your data is stored at:"
+    @echo "  {{ data_dir }}"
 
 # ============================================================================
 # UPDATES
@@ -155,60 +145,59 @@ where:
 
 # Update to latest version
 update: stop
-    @echo "  🔄 Updating eTMA Handler..."
+    @echo "  Updating eTMA Handler..."
     podman pull {{ container_image }}
-    @echo "  ✅ Updated! Run 'just start' to use new version"
+    @echo "  Updated! Run 'just start' to use new version"
 
 # ============================================================================
-# DEVELOPMENT (only if you're hacking on the code)
+# DEVELOPMENT
 # ============================================================================
 
 # Enter Nix development shell
 dev:
-    @echo "  🔧 Entering development environment..."
-    @echo "     (requires Nix with flakes enabled)"
+    @echo "  Entering development environment..."
     nix develop
 
-# Run tests (requires dev environment)
+# Run tests
 test:
     mix test
 
-# Format code (requires dev environment)
+# Format code
 format:
     mix format
 
-# Lint code (requires dev environment)
+# Lint code
 lint:
     mix credo --strict
 
-# All checks (requires dev environment)
+# All checks
 check: format lint test
-    @echo "  ✅ All checks passed!"
+    @echo "  All checks passed!"
 
 # Build and push release
 release version: build
-    @echo "  📦 Releasing version {{ version }}..."
+    @echo "  Releasing version {{ version }}..."
     podman tag {{ local_image }} {{ container_registry }}/{{ container_name }}:{{ version }}
     podman push {{ container_registry }}/{{ container_name }}:{{ version }}
     podman push {{ container_image }}
-    @echo "  ✅ Released {{ version }}"
+    @echo "  Released {{ version }}"
 
 # ============================================================================
 # CLEANUP
 # ============================================================================
 
-# Clean up containers and images
+# Clean up containers
 clean:
-    @echo "  🧹 Cleaning up..."
+    @echo "  Cleaning up..."
     -podman stop {{ container_name }} 2>/dev/null || true
     -podman rm {{ container_name }} 2>/dev/null || true
-    @echo "  ✅ Cleaned"
+    @echo "  Cleaned"
 
 # Deep clean (removes images too)
 clean-all: clean
     -podman rmi {{ container_image }} 2>/dev/null || true
     -podman rmi {{ local_image }} 2>/dev/null || true
-    @echo "  ✅ Deep cleaned"
+    @echo "  Deep cleaned"
 
 # ============================================================================
 # INTERNAL HELPERS
@@ -220,23 +209,18 @@ _check-podman:
     set -euo pipefail
     if ! command -v podman &> /dev/null; then
         echo ""
-        echo "  ❌ Podman is not installed!"
+        echo "  Podman is not installed!"
         echo ""
         echo "  Install it:"
-        echo ""
-        echo "    Linux (Fedora):    sudo dnf install podman"
-        echo "    Linux (Ubuntu):    sudo apt install podman"
-        echo "    Linux (Arch):      sudo pacman -S podman"
-        echo "    macOS:             brew install podman"
-        echo "    Windows:           winget install RedHat.Podman"
-        echo ""
-        echo "  Or run our setup script:"
-        echo ""
-        echo "    curl -fsSL https://raw.githubusercontent.com/Hyperpolymath/tma-mark2/main/setup.sh | bash"
+        echo "    Linux (Fedora):  sudo dnf install podman"
+        echo "    Linux (Ubuntu):  sudo apt install podman"
+        echo "    Linux (Arch):    sudo pacman -S podman"
+        echo "    macOS:           brew install podman"
+        echo "    Windows:         winget install RedHat.Podman"
         echo ""
         exit 1
     fi
-    echo "  ✅ Podman $(podman --version | cut -d' ' -f3)"
+    echo "  Podman $(podman --version | cut -d' ' -f3) OK"
 
 # Ensure data directory exists
 _ensure-dirs:
