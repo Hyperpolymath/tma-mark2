@@ -41,12 +41,17 @@ default:
     @just --list --unsorted 2>/dev/null | grep -v "^Available" | grep -v "^$" || true
 
 # Set up everything and run
-do-it: _check-podman _ensure-dirs _pull-or-build
+do-it: _check-podman _ensure-dirs
     @echo ""
-    @echo "  Starting eTMA Handler..."
-    @echo "  Open: http://localhost:{{ port }}"
-    @echo "  Data: {{ data_dir }}"
+    @echo "  eTMA Handler - Let's do this!"
+    @echo ""
+    @just _pull-or-build
+    @echo ""
+    @echo "  Ready! Starting eTMA Handler..."
+    @echo ""
+    @echo "  Open your browser to: http://localhost:{{ port }}"
     @echo "  Press Ctrl+C to stop"
+    @echo "  Your data is saved in: {{ data_dir }}"
     @echo ""
     @just run
 
@@ -57,7 +62,7 @@ do-it: _check-podman _ensure-dirs _pull-or-build
 # Pull the latest container image
 pull:
     @echo "  Pulling container image..."
-    podman pull {{ container_image }}
+    -podman pull {{ container_image }}
 
 # Build the container locally
 build:
